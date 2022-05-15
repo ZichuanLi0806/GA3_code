@@ -30,7 +30,7 @@ V_sh = m_dot_c/(rho*A_sh) #Measure of shell velocity
 
 ###Functions for calculations###
 def Dp_in_out(v_tube,kc,ke):
-    #Returns entrance and exit pressure losses
+    #Returns entrance and exit pressure losses given kc and ke. These are found from edge_coefficients
     return 0.5*rho*v_tube**2*(kc+ke)    
 def v_tube(m_dot_h, N):
     #Returns the tube veloctiy for the given input parameters
@@ -53,6 +53,12 @@ def v_noz(m_dot,dia):
 def Dp_shell(V_sh,N):
     #Returns the pressure loss from the dubious empirical relation given on handout page 3 at bottom
     return 4*a*(V_sh*do*rho/mu)**-0.15*N*rho*V_sh**2
+
+
+def edge_coefficients(sigma,):
+
+    return kc,ke
+
 
 
 v_tube = v_tube(m_dot_h,N)
