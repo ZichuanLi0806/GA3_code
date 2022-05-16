@@ -61,7 +61,7 @@ def Dp_shell(V_sh,N):
     return 4*a*(V_sh*do*rho/mu)**-0.15*N*rho*V_sh**2
 def edge_coefficients(sigma):
     #Given a value of sigma, returns kc,ke from Fig 7 (assuming Re=10,000)
-    kc = 0.4*(1-sigma) + 0.1 #From Fig 7. using Reynold's as approx 10,000
+    kc = 0.4*(1-sigma) + 0.09 #From Fig 7. using Reynold's as approx 10,000
     ke = sigma**2 - 2.1 * sigma + 1 #From curve fit of Fig 7, again using Re=10,000
     return kc,ke
 def m_dot_H(Dp_h_overall):
@@ -81,7 +81,7 @@ m_dot_h_guess = []
 m_dot_c_actual = []
 m_dot_c_guess = []
 
-for m_dot in np.linspace(0.3,0.7,50):
+for m_dot in np.linspace(0.15,0.7,50):
     v_t = v_tube(m_dot,N)
     f = friction_factor(v_t)
     v_noz_h = v_noz(m_dot,d_noz)
@@ -91,16 +91,19 @@ for m_dot in np.linspace(0.3,0.7,50):
     m_dot_h_actual.append(m_dot_H(Dp_h_overall))
     
 
-m_dot_h = intersection(m_dot_h_guess,m_dot_h_actual,m_dot_h_guess,m_dot_h_guess)[0][0]
+m_dot_h = intersection(m_dot_h_guess,m_dot_h_actual,m_dot_h_guess,m_dot_h_guess)[0][0] #Finds intersection of data i.e actual value of m_dot
 print("This configuration has hot mass flow:", round(m_dot_h,5),"kg/s")
 
-for m_dot in np.linspace(0.3,0.7,25):
+for m_dot in np.linspace(0.15,0.7,50):
     v_noz_c = v_noz(m_dot,d_noz)
     V_sh = m_dot/(rho*A_sh) #Measure of shell velocity
     Dp_c_overall = Dp_shell(V_sh,N) + rho*v_noz_c**2 #Last term accounts for BOTH nozzles
     m_dot_c_guess.append(m_dot)
     m_dot_c_actual.append(m_dot_C(Dp_c_overall))
-    
-
-m_dot_c = intersection(m_dot_c_guess,m_dot_c_actual,m_dot_c_guess,m_dot_c_guess)[0][0]
+#plt.plot(m_dot_c_guess,m_dot_c_actual)
+#plt.plot(m_dot_c_guess,m_dot_c_guess)
+#plt.xlabel('Guess')
+#plt.ylabel('Actual')
+#plt.show()
+m_dot_c = intersection(m_dot_c_guess,m_dot_c_actual,m_dot_c_guess,m_dot_c_guess)[0][0] #Finds intersection of data i.e actual value of m_dot
 print("This configuration has cold mass flow:", round(m_dot_c,5),"kg/s")
