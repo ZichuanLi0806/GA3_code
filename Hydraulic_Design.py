@@ -24,8 +24,8 @@ mu = 6.51e-4 #Dynamic viscosity (kg/ms)
 do = 8e-3 #Tube outer diameter
 di = 6e-3 #Tube inner diameter
 N_baffle = 9 #Number of baffles
-d_noz = 19e-3 #THIS NEEDS CHANGING AFTER CONSULTATION ABOUT 19MM USED INSTEAD OF 24.5????????
-rho = 990.1 #kg/m3 (water density at 40C)
+d_noz = 20e-3 #THIS NEEDS CHANGING AFTER CONSULTATION ABOUT 20MM USED INSTEAD OF 24.5????????
+rho = 1/0.001008 #kg/m3 (water density at 40C)
 a = 0.34 #Use 0.2 for triangular pitch. Use 0.34 for square pitch. Constant used for shell pressure drop, see handout top of page 4
 m_dot_h1 = 0.51 #initial mass flow kg/s (total mass flow of hot stream (not per tube))
 m_dot_c1 = 0.50 #kg/s initia
@@ -64,7 +64,7 @@ def Dp_shell(V_sh,N):
     return 4*a*(V_sh*do*rho/mu)**-0.15*N*rho*V_sh**2
 def edge_coefficients(sigma):
     #Given a value of sigma, returns kc,ke from Fig 7 (assuming Re=10,000)
-    kc = 0.4*(1-sigma) + 0.09 #From Fig 7. using Reynold's as approx 10,000
+    kc = 0.4*(1-sigma) + 0.1 #From Fig 7. using Reynold's as approx 10,000
     ke = sigma**2 - 2.1 * sigma + 1 #From curve fit of Fig 7, again using Re=10,000
     return kc,ke
 def m_dot_H(Dp_h_overall):
@@ -91,3 +91,4 @@ Dp_c_overall = Dp_shell(V_sh,N) + rho*v_noz_c**2 #Last term accounts for BOTH no
 print(Dp_h_overall)
 print(Dp_c_overall)
 print(m_dot_H(Dp_h_overall))
+print(m_dot_C(Dp_c_overall))
