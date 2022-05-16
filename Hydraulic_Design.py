@@ -3,6 +3,7 @@ import numpy as np
 import math
 import matplotlib.pyplot as plt
 from scipy import interpolate
+from intersect import intersection #Used for finding mass flow rates by iteration
 
 
 ###Figure 6 Dataset###
@@ -27,16 +28,12 @@ N_baffle = 9 #Number of baffles
 d_noz = 20e-3 #THIS NEEDS CHANGING AFTER CONSULTATION ABOUT 20MM USED INSTEAD OF 24.5????????
 rho = 1/0.001008 #kg/m3 (water density at 40C)
 a = 0.34 #Use 0.2 for triangular pitch. Use 0.34 for square pitch. Constant used for shell pressure drop, see handout top of page 4
-m_dot_h1 = 0.51 #initial mass flow kg/s (total mass flow of hot stream (not per tube))
-m_dot_c1 = 0.50 #kg/s initia
-
 
 
 
 ###Definitions of correlations###
 B = L/(N_baffle+1) #Baffle spacing
 A_sh = D_sh*(Y-do)*B/(Y*N_pass_c) #This correlation is only approx (see notes eqn 6)
-V_sh = m_dot_c1/(rho*A_sh) #Measure of shell velocity
 sigma = N*0.25*np.pi*di**2/(0.25*np.pi*D_sh**2) #Free area to total area. Is this equation right for multipass? i.e sigma does not vary with multipass vs signle pass?
 
 
@@ -46,10 +43,10 @@ def Dp_in_out(v_tube,kc,ke):
     return 0.5*rho*v_tube**2*(kc+ke)*N_pass_h    
 def v_tube(m_dot, N):
     #Returns the tube veloctiy for the given input parameters taking into account multi-pass
-    if (m_dot*N_pass_h/N) /(np.pi*rho*0.25*di**2) < 0.393:
+    if (m_dot*N_pass_h/N)/(np.pi*rho*0.25*di**2) < 0.393:
         print("Caution, equation (4) in datasheet not valid as tube Reynolds too low")
     else:
-        return (m_dot*N_pass_h/N) /(np.pi*rho*0.25*di**2)
+        return (m_dot*N_pass_h/N)/(np.pi*rho*0.25*di**2)
 def Dp_tubes(f,v_tube):
     #Returns pressure loss due to friction in tubes for all passes (if multi-pass)
     return (f*L*N_pass_h*rho*v_tube**2)/(di*2)
@@ -77,18 +74,33 @@ def m_dot_C(Dp_c_overall):
     return rho*(a*Dp_c_overall**3+b*Dp_c_overall**2+c*Dp_c_overall+d)
 
 
-v_tube = v_tube(m_dot_h1,N)
-f = friction_factor(v_tube)
-v_noz_h = v_noz(m_dot_h1,d_noz)
-v_noz_c = v_noz(m_dot_c1,d_noz)
-kc,ke = edge_coefficients(sigma)[0],edge_coefficients(sigma)[1]
 
+###Iteration to find correct mass flow rates###
+m_dot_h_actual = []
+m_dot_h_guess = []
+m_dot_c_actual = []
+m_dot_c_guess = []
 
-Dp_h_overall = Dp_tubes(f,v_tube) + Dp_in_out(v_tube, kc, ke) + rho*v_noz_h**2 #Last term accounts for BOTH nozzles
-Dp_c_overall = Dp_shell(V_sh,N) + rho*v_noz_c**2 #Last term accounts for BOTH nozzles
+for m_dot in np.linspace(0.3,0.7,50):
+    v_t = v_tube(m_dot,N)
+    f = friction_factor(v_t)
+    v_noz_h = v_noz(m_dot,d_noz)
+    kc,ke = edge_coefficients(sigma)[0],edge_coefficients(sigma)[1]
+    Dp_h_overall = Dp_tubes(f,v_t) + Dp_in_out(v_t, kc, ke) + rho*v_noz_h**2 #Last term accounts for BOTH nozzles
+    m_dot_h_guess.append(m_dot)
+    m_dot_h_actual.append(m_dot_H(Dp_h_overall))
+    
 
+m_dot_h = intersection(m_dot_h_guess,m_dot_h_actual,m_dot_h_guess,m_dot_h_guess)[0][0]
+print("This configuration has hot mass flow:", round(m_dot_h,5),"kg/s")
 
-print(Dp_h_overall)
-print(Dp_c_overall)
-print(m_dot_H(Dp_h_overall))
-print(m_dot_C(Dp_c_overall))
+for m_dot in np.linspace(0.3,0.7,25):
+    v_noz_c = v_noz(m_dot,d_noz)
+    V_sh = m_dot/(rho*A_sh) #Measure of shell velocity
+    Dp_c_overall = Dp_shell(V_sh,N) + rho*v_noz_c**2 #Last term accounts for BOTH nozzles
+    m_dot_c_guess.append(m_dot)
+    m_dot_c_actual.append(m_dot_C(Dp_c_overall))
+    
+
+m_dot_c = intersection(m_dot_c_guess,m_dot_c_actual,m_dot_c_guess,m_dot_c_guess)[0][0]
+print("This configuration has cold mass flow:", round(m_dot_c,5),"kg/s")
