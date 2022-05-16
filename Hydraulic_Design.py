@@ -33,9 +33,12 @@ L_plenum = 41e-3 #Plenum length
 
 ###Definitions of correlations###
 B = L/(N_baffle+1) #Baffle spacing PER SIDE (multipass shell)
-A_sh = D_sh*(Y-do)*B/(Y*N_pass_c) #This correlation is only approx (see notes eqn 6)
+
+#------------------
+A_sh = D_sh*(Y-do)*B/(Y*N_pass_c) #This correlation is only approx (see notes eqn 6)         #why divide by N_pass_c????
 sigma = N*0.25*np.pi*di**2/(0.25*np.pi*D_sh**2) #Free area to total area. Is this equation right for multipass? i.e sigma does not vary with multipass vs signle pass?
-sigma_plenum = (np.pi*0.25*d_noz**2)/(0.5*(d_noz+D_sh)*L_plenum) #Area ratio for nozzle into plenum. Assume plenum is a rectangle area L by (d_noz+D_sh)*0.5
+sigma_plenum = (np.pi*0.25*d_noz**2)/(0.5*(d_noz+D_sh)*L_plenum) #Area ratio for nozzle into plenum. Assume plenum is a rectangle area L by (d_noz+D_sh)*0.5            #why need this?????
+#----------------------
 
 
 ###Functions for calculations###
@@ -101,7 +104,12 @@ print("This configuration has hot mass flow:", round(m_dot_h,5),"kg/s (",round(m
 for m_dot in np.linspace(0.15,0.7,100):
     v_noz_c = v_noz(m_dot,d_noz)
     V_sh = m_dot/(rho*A_sh) #Measure of shell velocity
+
+    #----------------------
     Dp_c_overall = Dp_shell(V_sh,N) + N_baffle*N_pass_c*1.93e3 + rho*v_noz_c**2 #Last term accounts for BOTH nozzles. 2nd term is calibrated by Longley 2022 and 2017B data on Moodle
+    #-------------------------------
+    
+    
     m_dot_c_guess.append(m_dot)
     m_dot_c_actual.append(m_dot_C(Dp_c_overall))
 #plt.plot(m_dot_c_guess,m_dot_c_actual)
