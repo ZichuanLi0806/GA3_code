@@ -15,17 +15,17 @@ dataset_Dph = 1e5*np.array([0.1333,0.1756,0.2024,0.2577,0.3171,0.3633,0.4233,0.4
 
 
 ###Variables for hydraulic design###
-N = 13 #Number of tubes total (not per pass)
-N_pass_h = 1 #Number of passes of hot flow if multi-pass is used
-N_pass_c = 1 #Number of passes of cold flow if multi-pass is used
-L = 0.35 #Length of a single tube
-Y = 14e-3 #Tube pitch
+N = 14 #Number of tubes total (not per pass)
+N_pass_h = 2 #Number of passes of hot flow if multi-pass is used
+N_pass_c = 2 #Number of passes of cold flow if multi-pass is used
+L = 0.23 #Length of a single tube
+Y = 15e-3 #Tube pitch
 D_sh = 64e-3 #Acrylic shell diameter
 mu = 6.51e-4 #Dynamic viscosity (kg/ms)
 do = 8e-3 #Tube outer diameter
 di = 6e-3 #Tube inner diameter
-N_baffle = 9 #Number of baffles PER SIDE, CAREFUL. Each baffle often on both sides! (multipass shell)
-d_noz = 20e-3 #THIS NEEDS CHANGING AFTER CONSULTATION ABOUT 20MM USED INSTEAD OF 24.5????????
+N_baffle = 12 #Number of baffles PER SIDE, CAREFUL. Each baffle often on both sides! (multipass shell)
+d_noz = 25e-3 #THIS NEEDS CHANGING AFTER CONSULTATION ABOUT 20MM USED INSTEAD OF 24.5????????
 rho = 1/0.001008 #kg/m3 (water density at 40C)
 a = 0.34 #Use 0.20 for triangular pitch. Use 0.34 for square pitch. Constant used for shell pressure drop, see handout top of page 4
 L_plenum = 41e-3 #Plenum length
@@ -106,7 +106,7 @@ for m_dot in np.linspace(0.15,0.7,100):
     V_sh = m_dot/(rho*A_sh) #Measure of shell velocity
 
     #----------------------
-    Dp_c_overall = Dp_shell(V_sh,N) + N_baffle*N_pass_c*1.93e3 + rho*v_noz_c**2 #Last term accounts for BOTH nozzles. 2nd term is calibrated by Longley 2022 and 2017B data on Moodle
+    Dp_c_overall = Dp_shell(V_sh,N) + 2.3*N_baffle*N_pass_c*rho*V_sh**2 + rho*v_noz_c**2 #Last term accounts for BOTH nozzles. 2nd term is calibrated by Longley 2022 and 2017B data on Moodle
     #-------------------------------
     
     
