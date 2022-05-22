@@ -109,7 +109,6 @@ def Dp_baffle_online(m_dot, a): #equation 4.33 in https://web.iitd.ac.in/~pmvs/c
         CTP = 0.85
     Ds = 0.637*np.sqrt(0.9/CTP)*np.sqrt((np.pi*do*N*L*(Y/do)**2*do)/(L)) #equation (4.12)
     return fs*(((m_dot/A_sh)**2)*(N_baffle+1)*Ds)/((2*rho*De)*N_pass_c)
-def Dp_
 
 ###Iteration to find correct mass flow rates###
 m_dot_h_actual = []#Returns flow rate due to guessed flow rate.
